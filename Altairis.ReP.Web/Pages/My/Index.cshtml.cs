@@ -1,6 +1,8 @@
+using Altairis.ReP.Data;
 using Altairis.ReP.Data.Dtos.ReservationDtos;
 using Altairis.ReP.Data.Entities;
 using Microsoft.AspNetCore.Identity;
+using Olbrasoft.ReP.Business;
 
 namespace Altairis.ReP.Web.Pages.My;
 public partial class IndexModel : PageModel

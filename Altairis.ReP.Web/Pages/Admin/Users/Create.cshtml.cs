@@ -1,4 +1,5 @@
 using System.Globalization;
+using Altairis.ReP.Data;
 using Altairis.ReP.Data.Entities;
 using Altairis.Services.Mailing.Templating;
 using Microsoft.AspNetCore.Identity;

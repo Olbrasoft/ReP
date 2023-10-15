@@ -1,3 +1,4 @@
+using Altairis.ReP.Data;
 using Altairis.ReP.Data.Entities;
 using Microsoft.Extensions.Options;
 

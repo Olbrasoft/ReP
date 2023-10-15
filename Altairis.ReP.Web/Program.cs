@@ -8,6 +8,7 @@ global using Olbrasoft.Data.Cqrs;
 global using Olbrasoft.ReP.Business.Abstractions;
 global using System.ComponentModel.DataAnnotations;
 using Altairis.ConventionalMetadataProviders;
+using Altairis.ReP.Data;
 using Altairis.ReP.Data.Entities;
 using Altairis.Services.DateProvider;
 using Altairis.Services.Mailing;

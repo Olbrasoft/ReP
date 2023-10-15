@@ -1,3 +1,6 @@
+using Altairis.ReP.Data;
+using Olbrasoft.ReP.Business;
+
 namespace Altairis.ReP.Web.Pages.My;
 public class OpeningHoursModel : PageModel {
     private readonly OpeningHoursProvider hoursProvider;

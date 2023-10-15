@@ -11,7 +11,7 @@ public class ResourceAttachment
     public int ResourceId { get; set; }
 
     [ForeignKey(nameof(ResourceId))]
-    public Resource Resource { get; set; }
+    public Resource Resource { get; set; } = new();
 
     [Required, MaxLength(100)]
     public string FileName { get; set; } = string.Empty;
