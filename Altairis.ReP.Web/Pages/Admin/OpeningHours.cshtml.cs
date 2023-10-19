@@ -1,16 +1,15 @@
 using Altairis.ReP.Data;
 using Altairis.ReP.Data.Entities;
 using Altairis.ValidationToolkit;
-using Olbrasoft.ReP.Business;
 
 namespace Altairis.ReP.Web.Pages.Admin;
 public class OpeningHoursModel : PageModel
 {
     private readonly IOpeningHoursChangeService _service;
 
-    private readonly OpeningHoursProvider hoursProvider;
+    private readonly IOpeningHoursService hoursProvider;
 
-    public OpeningHoursModel(IOpeningHoursChangeService service, OpeningHoursProvider hoursProvider)
+    public OpeningHoursModel(IOpeningHoursChangeService service, IOpeningHoursService hoursProvider)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         this.hoursProvider = hoursProvider ?? throw new ArgumentNullException(nameof(hoursProvider));

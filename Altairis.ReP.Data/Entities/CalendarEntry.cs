@@ -1,6 +1,4 @@
-﻿using System.Security.Principal;
-
-namespace Altairis.ReP.Data.Entities;
+﻿namespace Altairis.ReP.Data.Entities;
 
 [Table("CalendarEntries")]
 

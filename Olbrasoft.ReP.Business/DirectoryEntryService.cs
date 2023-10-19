@@ -17,7 +17,6 @@ public class DirectoryEntryService : BaseService, IDirectoryEntryService
     public async Task<DirectoryEntry?> GetDirectoryEntryOrNullAsync(int Id, CancellationToken token = default)
         => await new DirectoryEntryQuery(Dispatcher) { DirectoryEntryId = Id }.ToResultAsync(token);
 
-
     public async Task<IEnumerable<DirectoryEntryInfoDto>> GetDirectoryInfosAsync(bool ShouldBeUsers = false, CancellationToken token = default) 
         => ShouldBeUsers
             ? await new DirectoryEntryInfosWhereShowInMemberDirectoryQuery(Dispatcher).ToResultAsync(token)

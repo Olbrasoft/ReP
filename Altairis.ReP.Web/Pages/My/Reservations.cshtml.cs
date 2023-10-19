@@ -5,7 +5,6 @@ using Altairis.TagHelpers;
 using Altairis.ValidationToolkit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using Olbrasoft.ReP.Business;
 using System.Globalization;
 
 namespace Altairis.ReP.Web.Pages.My;
@@ -14,11 +13,11 @@ public class ReservationsModel : PageModel
     private readonly IResourceService _resourceService;
     private readonly IReservationService _reservationService;
     private readonly IResourceAttachmentService _resourceAttachmentService;
-    private readonly IDateProvider dateProvider;
-    private readonly UserManager<ApplicationUser> userManager;
-    private readonly OpeningHoursProvider hoursProvider;
+    private readonly IDateProvider _dateProvider;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IOpeningHoursService _openingHourseService;
     private readonly AttachmentProcessor attachmentProcessor;
-    private readonly AppSettings options;
+    private readonly AppSettings _options;
 
     public ReservationsModel(
         IResourceService resourceService,
@@ -26,18 +25,18 @@ public class ReservationsModel : PageModel
         IResourceAttachmentService resourceAttachmentService,
         IDateProvider dateProvider,
         UserManager<ApplicationUser> userManager,
-        OpeningHoursProvider hoursProvider,
+        IOpeningHoursService hoursProvider,
         IOptions<AppSettings> optionsAccessor,
         AttachmentProcessor attachmentProcessor)
     {
         _resourceService = resourceService ?? throw new ArgumentNullException(nameof(resourceService));
         _reservationService = reservationService ?? throw new ArgumentNullException(nameof(reservationService));
         _resourceAttachmentService = resourceAttachmentService ?? throw new ArgumentNullException(nameof(resourceAttachmentService));
-        this.dateProvider = dateProvider ?? throw new ArgumentNullException(nameof(dateProvider));
-        this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        this.hoursProvider = hoursProvider ?? throw new ArgumentNullException(nameof(hoursProvider));
+        _dateProvider = dateProvider ?? throw new ArgumentNullException(nameof(dateProvider));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _openingHourseService = hoursProvider ?? throw new ArgumentNullException(nameof(hoursProvider));
         this.attachmentProcessor = attachmentProcessor;
-        this.options = optionsAccessor?.Value ?? throw new ArgumentException(nameof(optionsAccessor));
+        _options = optionsAccessor?.Value ?? throw new ArgumentException(nameof(optionsAccessor));
     }
 
     [BindProperty]
@@ -72,17 +71,17 @@ public class ReservationsModel : PageModel
     private async Task<bool> Init(int resourceId)
     {
         // Get resource
-        this.Resource = await _resourceService.GetResourceByIdOrNullAsync(resourceId);
+        Resource = await _resourceService.GetResourceByIdOrNullAsync(resourceId);
 
-        if (this.Resource == null) return false;
-        this.CanDoReservation = this.Resource.Enabled || this.User.IsPrivilegedUser();
+        if (Resource == null) return false;
+        CanDoReservation = Resource.Enabled || User.IsPrivilegedUser();
 
         // Get last Monday as the start date
-        this.CalendarDateBegin = this.dateProvider.Today;
-        while (this.CalendarDateBegin.DayOfWeek != CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek) this.CalendarDateBegin = this.CalendarDateBegin.AddDays(-1);
+        CalendarDateBegin = _dateProvider.Today;
+        while (CalendarDateBegin.DayOfWeek != CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek) CalendarDateBegin = CalendarDateBegin.AddDays(-1);
 
         // Get future reservations
-        this.Reservations = (await _reservationService.GetByResourceIdAsync(resourceId, this.CalendarDateBegin))
+        Reservations = (await _reservationService.GetByResourceIdAsync(resourceId, CalendarDateBegin))
                .Select(r => new CalendarEvent
                {
                    Id = "reservation_" + r.Id,
@@ -96,94 +95,94 @@ public class ReservationsModel : PageModel
                    IsFullDay = false,
                });
 
-        var lastEventEnd = this.Reservations.Max(x => x.DateEnd);
+        var lastEventEnd = Reservations.Max(x => x.DateEnd);
 
-        this.CalendarDateEnd = this.CalendarDateBegin.AddMonths(1);
+        CalendarDateEnd = CalendarDateBegin.AddMonths(1);
 
-        if (lastEventEnd.HasValue && lastEventEnd > this.CalendarDateEnd) this.CalendarDateEnd = lastEventEnd.Value;
+        if (lastEventEnd.HasValue && lastEventEnd > CalendarDateEnd) CalendarDateEnd = lastEventEnd.Value;
 
         // Get attachments
-        if (this.options.Features.UseAttachments)
-            this.Attachments = await _resourceAttachmentService.GetResourceAttachmentsByAsync(resourceId);
+        if (_options.Features.UseAttachments)
+            Attachments = await _resourceAttachmentService.GetResourceAttachmentsByAsync(resourceId);
 
         return true;
     }
 
     public async Task<IActionResult> OnGetAsync(int resourceId)
     {
-        if (!await this.Init(resourceId)) return this.NotFound();
+        if (!await Init(resourceId)) return NotFound();
 
-        var dt = this.dateProvider.Now.AddDays(1);
-        this.Input.DateBegin = dt.AddMinutes(-dt.Minute);
-        this.Input.DateEnd = this.Input.DateBegin.AddHours(1);
+        var dt = _dateProvider.Now.AddDays(1);
+        Input.DateBegin = dt.AddMinutes(-dt.Minute);
+        Input.DateEnd = Input.DateBegin.AddHours(1);
 
-        return this.Page();
+        return Page();
     }
 
     public async Task<IActionResult> OnGetDownload(int attachmentId)
     {
-        if (!this.options.Features.UseAttachments) return this.NotFound();
+        if (!_options.Features.UseAttachments) return NotFound();
         try
         {
-            var result = await this.attachmentProcessor.GetAttachment(attachmentId);
-            return this.File(result.Item1, "application/octet-stream", result.Item2);
+            var result = await attachmentProcessor.GetAttachment(attachmentId);
+            return File(result.Item1, "application/octet-stream", result.Item2);
         }
         catch (FileNotFoundException)
         {
-            return this.NotFound();
+            return NotFound();
         }
     }
 
     public async Task<IActionResult> OnPostAsync(int resourceId)
     {
-        if (!(await this.Init(resourceId) && (this.Resource.Enabled || this.User.IsPrivilegedUser()))) return this.NotFound();
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!(await Init(resourceId) && (Resource.Enabled || User.IsPrivilegedUser()))) return NotFound();
+        if (!ModelState.IsValid) return Page();
 
-        if (!this.User.IsPrivilegedUser())
+        if (!User.IsPrivilegedUser())
         {
             // Check reservation time length
-            var resLength = this.Input.DateEnd.Subtract(this.Input.DateBegin).TotalMinutes;
-            if (this.Resource.MaximumReservationTime > 0 && resLength > this.Resource.MaximumReservationTime)
+            var resLength = Input.DateEnd.Subtract(Input.DateBegin).TotalMinutes;
+            if (Resource.MaximumReservationTime > 0 && resLength > Resource.MaximumReservationTime)
             {
-                this.ModelState.AddModelError(string.Empty, string.Format(UI.My_Reservations_Err_Maxlength, this.Resource.MaximumReservationTime));
-                return this.Page();
+                ModelState.AddModelError(string.Empty, string.Format(UI.My_Reservations_Err_Maxlength, Resource.MaximumReservationTime));
+                return Page();
             }
 
             // Check if it begins and ends in the same day
-            if (this.options.Features.UseOpeningHours && this.Input.DateBegin.Date != this.Input.DateEnd.Date)
+            if (_options.Features.UseOpeningHours && Input.DateBegin.Date != Input.DateEnd.Date)
             {
-                this.ModelState.AddModelError(string.Empty, UI.My_Reservations_Err_SingleDay);
-                return this.Page();
+                ModelState.AddModelError(string.Empty, UI.My_Reservations_Err_SingleDay);
+                return Page();
             }
 
             // Check against opening times
-            if (this.options.Features.UseOpeningHours)
+            if (_options.Features.UseOpeningHours)
             {
-                var openTime = await this.hoursProvider.GetOpeningHours(this.Input.DateBegin);
-                if (this.Input.DateBegin < openTime.AbsoluteOpeningTime || this.Input.DateEnd > openTime.AbsoluteClosingTime)
+                var openTime = await _openingHourseService.GetOpeningHours(Input.DateBegin);
+                if (Input.DateBegin < openTime.AbsoluteOpeningTime || Input.DateEnd > openTime.AbsoluteClosingTime)
                 {
-                    this.ModelState.AddModelError(string.Empty, UI.My_Reservations_Err_OpeningHours);
-                    return this.Page();
+                    ModelState.AddModelError(string.Empty, UI.My_Reservations_Err_OpeningHours);
+                    return Page();
                 }
             }
         }
 
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
                      
         // Create reservation
-        var result = await _reservationService.SaveAsync(this.Input.DateBegin,
-                                                        this.Input.DateEnd,
-                                                        int.Parse(this.userManager.GetUserId(this.User)),
+        var result = await _reservationService.SaveAsync(Input.DateBegin,
+                                                        Input.DateEnd,
+                                                        int.Parse(_userManager.GetUserId(User)),
                                                         resourceId,
-                                                        this.User.IsPrivilegedUser() && this.Input.System,
-                                                        this.User.IsPrivilegedUser() ? this.Input.Comment : null);
+                                                        User.IsPrivilegedUser() && Input.System,
+                                                        User.IsPrivilegedUser() ? Input.Comment : null);
 
         foreach (var conflict in result.Conflicts)
         {
-            this.ModelState.AddModelError(string.Empty, string.Format(UI.My_Reservations_Err_Conflict, conflict.UserName, conflict.DateBegin));
+            ModelState.AddModelError(string.Empty, string.Format(UI.My_Reservations_Err_Conflict, conflict.UserName, conflict.DateBegin));
         }
 
-        return !this.ModelState.IsValid ? this.Page() : this.RedirectToPage("Reservations", string.Empty, new { resourceId }, "created");
+        return !ModelState.IsValid ? Page() : RedirectToPage("Reservations", string.Empty, new { resourceId }, "created");
     }
 }
 

@@ -8,7 +8,7 @@ namespace Altairis.ReP.Web.Pages.My;
 public partial class IndexModel : PageModel
 {
     private readonly UserManager<ApplicationUser> userManager;
-    private readonly OpeningHoursProvider hoursProvider;
+    private readonly IOpeningHoursService hoursProvider;
     private readonly IResourceService _resourceService;
     private readonly IReservationService _reservationService;
     private readonly INewsMessageService _newMesaageService;
@@ -16,7 +16,7 @@ public partial class IndexModel : PageModel
     private int UserId => int.Parse(this.userManager.GetUserId(this.User));
 
     public IndexModel(UserManager<ApplicationUser> userManager,
-                      OpeningHoursProvider hoursProvider,
+                      IOpeningHoursService hoursProvider,
                       IResourceService resourceService,
                       IReservationService reservationService,
                       INewsMessageService newMesaageService)

@@ -1,4 +1,3 @@
-global using Altairis.ReP.Web;
 global using Altairis.ReP.Web.Resources;
 global using Altairis.ReP.Web.Services;
 global using Microsoft.AspNetCore.Mvc;
@@ -201,7 +200,8 @@ builder.Services.AddResourceTemplatedMailerService(new ResourceTemplatedMailerSe
 
 // Configure misc services
 builder.Services.AddSingleton<IDateProvider>(new TzConvertDateProvider("Central Europe Standard Time", DatePrecision.Minute));
-builder.Services.AddScoped<OpeningHoursProvider>();
+
+
 builder.Services.AddScoped<AttachmentProcessor>();
 builder.Services.Configure<TimeTagHelperOptions>(options =>
 {
@@ -224,6 +224,7 @@ builder.Services.AddScoped<IDirectoryEntryService, DirectoryEntryService>();
 builder.Services.AddScoped<IResourceAttachmentService, ResourceAttachmentService>();
 builder.Services.AddScoped<IOpeningHoursChangeService, OpeningHoursChangeService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IOpeningHoursService, OpeningHoursService>();
 
 
 // Build application

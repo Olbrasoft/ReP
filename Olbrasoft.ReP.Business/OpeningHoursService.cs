@@ -5,18 +5,17 @@ using Microsoft.Extensions.Options;
 
 namespace Olbrasoft.ReP.Business;
 
-public class OpeningHoursProvider : IOpeningHoursProvider
+public class OpeningHoursService : IOpeningHoursService
 {
     private readonly IOptions<AppSettings> optionsAccessor;
     private readonly IDateProvider dateProvider;
     private readonly IOpeningHoursChangeService _service;
 
-    public OpeningHoursProvider(IOptions<AppSettings> optionsAccessor, IDateProvider dateProvider, IOpeningHoursChangeService service)
+    public OpeningHoursService(IOptions<AppSettings> optionsAccessor, IDateProvider dateProvider, IOpeningHoursChangeService service)
     {
         this.optionsAccessor = optionsAccessor ?? throw new ArgumentNullException(nameof(optionsAccessor));
         this.dateProvider = dateProvider ?? throw new ArgumentNullException(nameof(dateProvider));
         _service = service ?? throw new ArgumentNullException(nameof(service));
-
     }
 
     public async Task<OpeningHoursInfo> GetOpeningHours(int dayOffset) => await GetOpeningHours(dateProvider.Today.AddDays(dayOffset));
@@ -80,5 +79,4 @@ public class OpeningHoursProvider : IOpeningHoursProvider
             ? new OpeningHoursInfo { Date = date.Date }
             : new OpeningHoursInfo { Date = date.Date, OpeningTime = value.OpeningTime, ClosingTime = value.ClosingTime, IsException = false };
     }
-
 }

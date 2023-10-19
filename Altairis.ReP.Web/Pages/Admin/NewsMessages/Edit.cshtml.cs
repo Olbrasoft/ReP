@@ -1,5 +1,4 @@
 using Altairis.ReP.Data.Dtos.NewsMessageDtos;
-using Olbrasoft.Data.Cqrs;
 
 namespace Altairis.ReP.Web.Pages.Admin.NewsMessages;
 public class EditModel : PageModel
