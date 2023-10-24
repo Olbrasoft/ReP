@@ -21,10 +21,10 @@ public class PlaintextTagHelper : TagHelper {
 
         output.TagName = "div";
 
-        var lines = this.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+        var lines = Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
         var sb = new StringBuilder();
         for (var i = 0; i < lines.Length; i++) {
-            sb.Append(this.ProcessLine(lines[i]));
+            sb.Append(ProcessLine(lines[i]));
             if (i != lines.Length - 1) sb.AppendLine("<br />");
         }
 
@@ -33,7 +33,7 @@ public class PlaintextTagHelper : TagHelper {
 
     private string ProcessLine(string s) {
         if (string.IsNullOrWhiteSpace(s)) return string.Empty;
-        s = this.htmlEncoder.Encode(s);
+        s = htmlEncoder.Encode(s);
         s = Regex.Replace(s, LINK_PATTERN, CreateLink, RegexOptions.IgnoreCase);
         return s;
     }

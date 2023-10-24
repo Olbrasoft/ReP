@@ -38,9 +38,9 @@ public class EditModel : PageModel
     public async Task<IActionResult> OnGetAsync(int resourceId, CancellationToken token)
     {
         var resource = await _service.GetResourceByIdOrNullAsync(resourceId, token);
-        if (resource == null) return this.NotFound();
+        if (resource == null) return NotFound();
 
-        this.Input = new InputModel
+        Input = new InputModel
         {
             Description = resource.Description,
             ResourceEnabled = resource.Enabled,
@@ -51,7 +51,7 @@ public class EditModel : PageModel
             Instructions = resource.Instructions
         };
 
-        return this.Page();
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(int resourceId, CancellationToken token)
@@ -64,12 +64,12 @@ public class EditModel : PageModel
                                       Input.ForegroundColor,
                                       Input.BackgroundColor,
                                       token) == CommandStatus.NotFound
-            ? this.NotFound()
-            : this.RedirectToPage("Index", null, "saved");
+            ? NotFound()
+            : RedirectToPage("Index", null, "saved");
 
 
     public async Task<IActionResult> OnPostDeleteAsync(int resourceId)
         => await _service.DeleteAsync(resourceId) == CommandStatus.NotFound
-            ? this.NotFound()
-            : this.RedirectToPage("Index", null, "deleted");
+            ? NotFound()
+            : RedirectToPage("Index", null, "deleted");
 }

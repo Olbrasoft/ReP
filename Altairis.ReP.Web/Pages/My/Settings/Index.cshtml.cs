@@ -39,28 +39,28 @@ public class IndexModel : PageModel {
     public ApplicationUser Me { get; set; }
 
     public async Task OnGetAsync() {
-        this.Me = await this.userManager.GetUserAsync(this.User);
-        this.Input.Language = this.Me.Language;
-        this.Input.PhoneNumber = this.Me.PhoneNumber;
-        this.Input.SendNotifications = this.Me.SendNotifications;
-        this.Input.SendNews = this.Me.SendNews;
-        this.Input.DisplayName = this.Me.DisplayName;
-        this.Input.ShowInMemberDirectory = this.Me.ShowInMemberDirectory;
+        Me = await userManager.GetUserAsync(User);
+        Input.Language = Me.Language;
+        Input.PhoneNumber = Me.PhoneNumber;
+        Input.SendNotifications = Me.SendNotifications;
+        Input.SendNews = Me.SendNews;
+        Input.DisplayName = Me.DisplayName;
+        Input.ShowInMemberDirectory = Me.ShowInMemberDirectory;
     }
 
     public async Task<IActionResult> OnPostAsync() {
-        if (!this.ModelState.IsValid) return this.Page();
-        this.Me = await this.userManager.GetUserAsync(this.User);
+        if (!ModelState.IsValid) return Page();
+        Me = await userManager.GetUserAsync(User);
 
-        this.Me.Language = this.Input.Language;
-        this.Me.PhoneNumber = this.Input.PhoneNumber;
-        this.Me.SendNews = this.Input.SendNews;
-        this.Me.SendNotifications = this.Input.SendNotifications;
-        this.Me.DisplayName= this.Input.DisplayName;
-        this.Me.ShowInMemberDirectory = this.Input.ShowInMemberDirectory;
-        await this.userManager.UpdateAsync(this.Me);
+        Me.Language = Input.Language;
+        Me.PhoneNumber = Input.PhoneNumber;
+        Me.SendNews = Input.SendNews;
+        Me.SendNotifications = Input.SendNotifications;
+        Me.DisplayName= Input.DisplayName;
+        Me.ShowInMemberDirectory = Input.ShowInMemberDirectory;
+        await userManager.UpdateAsync(Me);
 
-        return this.RedirectToPage("Index", null, "saved");
+        return RedirectToPage("Index", null, "saved");
     }
 
 }

@@ -14,7 +14,7 @@ public class NewsModel : PageModel
 
     public async Task OnGetAsync(CancellationToken token)
     {
-        this.Messages = await _service.GetNewsMessagesAsync(token);
+        Messages = await _service.GetNewsMessagesAsync(token);
     }
 
 }

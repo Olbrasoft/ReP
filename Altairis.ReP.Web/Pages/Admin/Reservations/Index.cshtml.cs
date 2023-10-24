@@ -10,5 +10,5 @@ public class IndexModel : PageModel {
     public IEnumerable<ReservationFullInfoDto> Reservations { get; set; }
 
     public async Task OnGetAsync(CancellationToken token) 
-        => this.Reservations = await _service.GetReservationFullInfosAsync(token);
+        => Reservations = await _service.GetReservationFullInfosAsync(token);
 }

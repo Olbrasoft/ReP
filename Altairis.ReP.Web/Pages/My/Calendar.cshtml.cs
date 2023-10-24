@@ -26,7 +26,7 @@ public partial class CalendarModel : PageModel
         this.options = options ?? throw new ArgumentNullException(nameof(options));
     }
 
-    public bool CanManageEntries => this.options.Value.Features.UseCalendarEntries && this.User.IsPrivilegedUser();
+    public bool CanManageEntries => options.Value.Features.UseCalendarEntries && User.IsPrivilegedUser();
 
     [BindProperty]
     public InputModel Input { get; set; } = new InputModel();
@@ -64,7 +64,7 @@ public partial class CalendarModel : PageModel
         public string Name { get; set; } = String.Empty;
         public string ForegroundColor { get; set; } = String.Empty;
         public string BackgroundColor { get; set; } = String.Empty;
-        public string GetStyle() => $"color:{this.ForegroundColor};background-color:{this.BackgroundColor};";
+        public string GetStyle() => $"color:{ForegroundColor};background-color:{BackgroundColor};";
     }
 
     public DateTime DateBegin { get; set; }
@@ -78,11 +78,11 @@ public partial class CalendarModel : PageModel
     public async Task<IActionResult> OnGetAsync(int? year, int? month, CancellationToken token)
     {
         // Redirect to current month
-        if (!year.HasValue || !month.HasValue) return this.RedirectToPage(new { this.dateProvider.Today.Year, this.dateProvider.Today.Month });
+        if (!year.HasValue || !month.HasValue) return RedirectToPage(new { dateProvider.Today.Year, dateProvider.Today.Month });
 
         // Initialize data
         await Init(year, month, token);
-        return this.Page();
+        return Page();
     }
 
     public async Task<IActionResult> OnGetDeleteAsync(int? year, int? month, int entryId, CancellationToken token)
@@ -91,12 +91,12 @@ public partial class CalendarModel : PageModel
         await Init(year, month, token);
 
         // Delete entry
-        if (this.CanManageEntries)
+        if (CanManageEntries)
         {
             await _calendarEntryService.DeleteCalendarEntryByIdAsync(entryId, token);
         }
 
-        return this.RedirectToPage(pageName: null, pageHandler: null, fragment: string.Empty);
+        return RedirectToPage(pageName: null, pageHandler: null, fragment: string.Empty);
     }
 
     public async Task<IActionResult> OnPostAsync(int? year, int? month, CancellationToken token)
@@ -105,27 +105,27 @@ public partial class CalendarModel : PageModel
         await Init(year, month,token);
 
         // Validate arguments
-        if (!this.ModelState.IsValid || !this.CanManageEntries) return this.Page();
+        if (!ModelState.IsValid || !CanManageEntries) return Page();
 
         // Create new entry
         await _calendarEntryService.SaveAsync(Input.Date, Input.Title, Input.Comment, token);
 
 
-        return this.RedirectToPage(pageName: null, pageHandler: null, fragment: string.Empty);
+        return RedirectToPage(pageName: null, pageHandler: null, fragment: string.Empty);
     }
 
     private async Task Init(int? year, int? month, CancellationToken token)
     {
         // Get month name for display
-        this.DateBegin = new DateTime(year.Value, month.Value, 1);
-        this.DateEnd = this.DateBegin.AddMonths(1).AddDays(-1);
-        this.DatePrev = this.DateBegin.AddMonths(-1);
-        this.DateNext = this.DateBegin.AddMonths(+1);
+        DateBegin = new DateTime(year.Value, month.Value, 1);
+        DateEnd = DateBegin.AddMonths(1).AddDays(-1);
+        DatePrev = DateBegin.AddMonths(-1);
+        DateNext = DateBegin.AddMonths(+1);
 
         // Get all resources for tags
-        this.Resources = _mapper.Map<IEnumerable<ResourceTag>>(await _resourceService.GetResourceTagsAsync(token));
+        Resources = _mapper.Map<IEnumerable<ResourceTag>>(await _resourceService.GetResourceTagsAsync(token));
 
-        var ri = (await _reservationService.GetBetweenDatesAsync(this.DateBegin.AddDays(-6), this.DateEnd.AddDays(6),token))
+        var ri = (await _reservationService.GetBetweenDatesAsync(DateBegin.AddDays(-6), DateEnd.AddDays(6),token))
               .Select(rwdid => new CalendarEvent
               {
                   Id = "reservation_" + rwdid.Id,
@@ -144,8 +144,8 @@ public partial class CalendarModel : PageModel
         var ei = calendarEntries.Select(ce => new CalendarEvent
         {
             Id = "event_" + ce.Id,
-            BackgroundColor = this.options.Value.Design.CalendarEntryBgColor,
-            ForegroundColor = this.options.Value.Design.CalendarEntryFgColor,
+            BackgroundColor = options.Value.Design.CalendarEntryBgColor,
+            ForegroundColor = options.Value.Design.CalendarEntryFgColor,
             DateBegin = ce.Date,
             DateEnd = ce.Date,
             Name = ce.Title,
@@ -153,9 +153,9 @@ public partial class CalendarModel : PageModel
             Href = "#event_detail_" + ce.Id,
         });
 
-        this.Reservations = ei.Concat(ri);
+        Reservations = ei.Concat(ri);
 
-        this.CalendarEntries = calendarEntries.Select(ce => new CalendarEntryInfo
+        CalendarEntries = calendarEntries.Select(ce => new CalendarEntryInfo
         {
             Id = ce.Id,
             Date = ce.Date,

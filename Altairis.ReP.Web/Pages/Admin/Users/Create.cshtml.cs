@@ -15,7 +15,7 @@ public class CreateModel : PageModel {
     public CreateModel(UserManager<ApplicationUser> userManager, ITemplatedMailerService mailerService, IOptions<AppSettings> optionsAccessor) {
         this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         this.mailerService = mailerService ?? throw new ArgumentNullException(nameof(mailerService));
-        this.options = optionsAccessor?.Value ?? throw new ArgumentNullException(nameof(optionsAccessor));
+        options = optionsAccessor?.Value ?? throw new ArgumentNullException(nameof(optionsAccessor));
     }
 
     [BindProperty]
@@ -51,41 +51,41 @@ public class CreateModel : PageModel {
     };
 
     public void OnGet() {
-        this.Input.ShowInMemberDirectory = this.options.Features.UseMemberDirectory;
+        Input.ShowInMemberDirectory = options.Features.UseMemberDirectory;
     }
 
     public async Task<IActionResult> OnPostAsync() {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         // Create new user
         var newUser = new ApplicationUser {
-            UserName = this.Input.UserName,
-            Email = this.Input.Email,
-            PhoneNumber = this.Input.PhoneNumber,
-            Language = this.Input.Language,
-            DisplayName = this.Input.DisplayName,
-            ShowInMemberDirectory = this.options.Features.UseMemberDirectory && this.Input.ShowInMemberDirectory
+            UserName = Input.UserName,
+            Email = Input.Email,
+            PhoneNumber = Input.PhoneNumber,
+            Language = Input.Language,
+            DisplayName = Input.DisplayName,
+            ShowInMemberDirectory = options.Features.UseMemberDirectory && Input.ShowInMemberDirectory
         };
-        var result = await this.userManager.CreateAsync(newUser);
-        if (!this.IsIdentitySuccess(result)) return this.Page();
+        var result = await userManager.CreateAsync(newUser);
+        if (!this.IsIdentitySuccess(result)) return Page();
 
         // Assign roles
-        if (this.Input.IsMaster) await this.userManager.AddToRoleAsync(newUser, ApplicationRole.Master);
-        if (this.Input.IsAdministrator) await this.userManager.AddToRoleAsync(newUser, ApplicationRole.Administrator);
+        if (Input.IsMaster) await userManager.AddToRoleAsync(newUser, ApplicationRole.Master);
+        if (Input.IsAdministrator) await userManager.AddToRoleAsync(newUser, ApplicationRole.Administrator);
 
         // Get e-mail confirmation URL
-        var token = await this.userManager.GenerateEmailConfirmationTokenAsync(newUser);
-        var activationUrl = this.Url.Page("/Login/Activate", pageHandler: null, values: new { UserId = newUser.Id, Token = token }, protocol: this.Request.Scheme);
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+        var activationUrl = Url.Page("/Login/Activate", pageHandler: null, values: new { UserId = newUser.Id, Token = token }, protocol: Request.Scheme);
 
         // Send welcome mail
-        var culture = new CultureInfo(this.Input.Language);
+        var culture = new CultureInfo(Input.Language);
         var msg = new TemplatedMailMessageDto("Activation", newUser.Email);
-        await this.mailerService.SendMessageAsync(msg, new {
+        await mailerService.SendMessageAsync(msg, new {
             userName = newUser.UserName,
             url = activationUrl
         }, culture, culture);
 
-        return this.RedirectToPage("Index", null, "created");
+        return RedirectToPage("Index", null, "created");
     }
 
 }

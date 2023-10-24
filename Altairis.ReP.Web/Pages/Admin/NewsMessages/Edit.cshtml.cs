@@ -14,22 +14,22 @@ public class EditModel : PageModel
     public async Task<IActionResult> OnGetAsync(int newsMessageId)
     {
         var newsMessageDto = await _service.GetNewsMessageOrNullByAsync(newsMessageId);
-        if (newsMessageDto == null) return this.NotFound();
+        if (newsMessageDto == null) return NotFound();
 
-        this.Input = newsMessageDto;
+        Input = newsMessageDto;
 
-        return this.Page();
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(int newsMessageId, CancellationToken token) 
         =>  ModelState.IsValid
-            ? await _service.SaveAsync(newsMessageId, this.Input.Title, this.Input.Text, token) == CommandStatus.NotFound
-            ? this.NotFound()
-            : this.RedirectToPage("Index", null, "saved")
-            : this.Page();
+            ? await _service.SaveAsync(newsMessageId, Input.Title, Input.Text, token) == CommandStatus.NotFound
+            ? NotFound()
+            : RedirectToPage("Index", null, "saved")
+            : Page();
 
     public async Task<IActionResult> OnPostDeleteAsync(int newsMessageId, CancellationToken token) 
         => await _service.DeleteAsync(newsMessageId, token) == CommandStatus.NotFound
-            ? this.NotFound()
-            : this.RedirectToPage("Index", null, "deleted");
+            ? NotFound()
+            : RedirectToPage("Index", null, "deleted");
 }

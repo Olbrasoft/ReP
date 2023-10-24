@@ -202,7 +202,7 @@ builder.Services.AddResourceTemplatedMailerService(new ResourceTemplatedMailerSe
 builder.Services.AddSingleton<IDateProvider>(new TzConvertDateProvider("Central Europe Standard Time", DatePrecision.Minute));
 
 
-builder.Services.AddScoped<AttachmentProcessor>();
+builder.Services.AddScoped<AttachmentService>();
 builder.Services.Configure<TimeTagHelperOptions>(options =>
 {
     options.YesterdayDateFormatter = dt => string.Format(UI.TimeTagHelper_Yesterday, dt);
@@ -222,7 +222,6 @@ builder.Services.AddScoped<INewsMessageService, NewsMessageService>();
 builder.Services.AddScoped<ICalendarEntryService, CalendarEntryService>();
 builder.Services.AddScoped<IDirectoryEntryService, DirectoryEntryService>();
 builder.Services.AddScoped<IResourceAttachmentService, ResourceAttachmentService>();
-builder.Services.AddScoped<IOpeningHoursChangeService, OpeningHoursChangeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOpeningHoursService, OpeningHoursService>();
 

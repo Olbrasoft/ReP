@@ -34,32 +34,32 @@ public class FirstRunModel : PageModel
 
     public async Task<IActionResult> OnGet(CancellationToken token)
     {
-        if (await _service.IsThereAnyUserAsync(token)) return this.NotFound();
-        this.Input.Password = SecurityHelper.GenerateRandomPassword();
-        return this.Page();
+        if (await _service.IsThereAnyUserAsync(token)) return NotFound();
+        Input.Password = SecurityHelper.GenerateRandomPassword();
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(CancellationToken token)
     {
-        if (await _service.IsThereAnyUserAsync(token)) return this.NotFound();
-        if (!this.ModelState.IsValid) return this.Page();
+        if (await _service.IsThereAnyUserAsync(token)) return NotFound();
+        if (!ModelState.IsValid) return Page();
 
         // Create user
         var user = new ApplicationUser
         {
-            UserName = this.Input.UserName,
-            DisplayName = this.Input.DisplayName,
-            Email = this.Input.Email,
+            UserName = Input.UserName,
+            DisplayName = Input.DisplayName,
+            Email = Input.Email,
             EmailConfirmed = true,
             Language = CultureInfo.CurrentUICulture.Name,
             Enabled = true
         };
-        if (!this.IsIdentitySuccess(await this.userManager.CreateAsync(user, this.Input.Password))) return this.Page();
+        if (!this.IsIdentitySuccess(await userManager.CreateAsync(user, Input.Password))) return Page();
 
         // Assign Administrator role
-        if (!this.IsIdentitySuccess(await this.userManager.AddToRoleAsync(user, ApplicationRole.Administrator))) return this.Page();
+        if (!this.IsIdentitySuccess(await userManager.AddToRoleAsync(user, ApplicationRole.Administrator))) return Page();
 
         // Redirect to home page
-        return this.RedirectToPage("Index");
+        return RedirectToPage("Index");
     }
 }

@@ -20,30 +20,30 @@ public class ResetPasswordModel : PageModel {
     }
 
     public async Task<IActionResult> OnPostAsync(string userId, string token) {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         // Try to find user by ID
-        var user = await this.userManager.FindByIdAsync(userId).ConfigureAwait(false);
+        var user = await userManager.FindByIdAsync(userId).ConfigureAwait(false);
         if (user == null) {
-            this.ModelState.AddModelError(nameof(this.Input.Password), UI.Login_ForgotPassword_UserNotFound);
-            return this.Page();
+            ModelState.AddModelError(nameof(Input.Password), UI.Login_ForgotPassword_UserNotFound);
+            return Page();
         }
 
         // Try to reset password
-        var result = await this.userManager.ResetPasswordAsync(
+        var result = await userManager.ResetPasswordAsync(
             user,
             token,
-            this.Input.Password);
+            Input.Password);
 
         if (this.IsIdentitySuccess(result)) {
             // Set user e-mail address as confirmed
             user.EmailConfirmed = true;
-            await this.userManager.UpdateAsync(user);
+            await userManager.UpdateAsync(user);
 
             // Redirect to confirmation page
-            return this.RedirectToPage("Index", null, "reset");
+            return RedirectToPage("Index", null, "reset");
         }
 
-        return this.Page();
+        return Page();
     }
 }

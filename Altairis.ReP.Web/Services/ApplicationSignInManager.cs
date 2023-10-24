@@ -13,7 +13,7 @@ public class ApplicationSignInManager : SignInManager<ApplicationUser> {
 
         // Allow sign-in using e-mail address, not only user name
         if (result == Microsoft.AspNetCore.Identity.SignInResult.Failed && userName.Contains('@')) {
-            var userFoundByEmail = await this.UserManager.FindByEmailAsync(userName);
+            var userFoundByEmail = await UserManager.FindByEmailAsync(userName);
             if (userFoundByEmail != null) result = await base.PasswordSignInAsync(userFoundByEmail, password, isPersistent, lockoutOnFailure);
         }
         return result;

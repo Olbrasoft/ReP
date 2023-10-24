@@ -10,10 +10,10 @@ public class EmailConfirmModel : PageModel {
     }
 
     public async Task<IActionResult> OnGetAsync(string newEmail, string token) {
-        var me = await this.userManager.GetUserAsync(this.User);
-        if (me.Email.Equals(newEmail, StringComparison.OrdinalIgnoreCase)) return this.RedirectToPage("Index", null, "changeemaildone");
+        var me = await userManager.GetUserAsync(User);
+        if (me.Email.Equals(newEmail, StringComparison.OrdinalIgnoreCase)) return RedirectToPage("Index", null, "changeemaildone");
 
-        var result = await this.userManager.ChangeEmailAsync(me, newEmail, token);
-        return result.Succeeded ? this.RedirectToPage("Index", null, "changeemaildone") : (IActionResult)this.Page();
+        var result = await userManager.ChangeEmailAsync(me, newEmail, token);
+        return result.Succeeded ? RedirectToPage("Index", null, "changeemaildone") : (IActionResult)Page();
     }
 }

@@ -17,7 +17,7 @@ public class DirectoryModel : PageModel
 
         var extraInfos = SetIconClass(await _service.GetDirectoryInfosAsync(token: token), "fas fa-fw fa-address-card");
 
-        this.Items = userInfos.Concat(extraInfos).OrderBy(x => x.DisplayName);
+        Items = userInfos.Concat(extraInfos).OrderBy(x => x.DisplayName);
     }
 
     private static IEnumerable<DirectoryEntryInfoDto> SetIconClass(IEnumerable<DirectoryEntryInfoDto> directoryEntryInfos, string iconClass)

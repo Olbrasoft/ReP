@@ -10,7 +10,7 @@ public class MarkdownTagHelper : TagHelper {
     public override void Process(TagHelperContext context, TagHelperOutput output) {
         output.TagName = string.Empty;
         var pipeline = new MarkdownPipelineBuilder().DisableHtml().UseAdvancedExtensions().Build();
-        var html = Markdown.ToHtml(this.Text, pipeline);
+        var html = Markdown.ToHtml(Text, pipeline);
         output.Content.SetHtmlContent(html);
     }
 

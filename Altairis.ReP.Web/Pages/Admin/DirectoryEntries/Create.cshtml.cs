@@ -24,10 +24,10 @@ public class CreateModel : PageModel {
 
     public async Task<IActionResult> OnPostAsync(CancellationToken token)
     {
-        if (!ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
                
-        await _service.SaveAsync(this.Input.DisplayName, this.Input.Email, this.Input.PhoneNumber, token);
+        await _service.SaveAsync(Input.DisplayName, Input.Email, Input.PhoneNumber, token);
 
-        return this.RedirectToPage("Index", null, "created");
+        return RedirectToPage("Index", null, "created");
     }
 }

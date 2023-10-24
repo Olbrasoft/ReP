@@ -13,7 +13,7 @@ public partial class IndexModel : PageModel
     private readonly IReservationService _reservationService;
     private readonly INewsMessageService _newMesaageService;
 
-    private int UserId => int.Parse(this.userManager.GetUserId(this.User));
+    private int UserId => int.Parse(userManager.GetUserId(User));
 
     public IndexModel(UserManager<ApplicationUser> userManager,
                       IOpeningHoursService hoursProvider,
@@ -45,28 +45,28 @@ public partial class IndexModel : PageModel
     public async Task OnGetAsync(CancellationToken token)
     {
         // Get operning hours
-        this.OpenToday = await this.hoursProvider.GetOpeningHours(0);
-        this.OpenTomorrow = await this.hoursProvider.GetOpeningHours(1);
+        OpenToday = await hoursProvider.GetOpeningHoursAsync(0);
+        OpenTomorrow = await hoursProvider.GetOpeningHoursAsync(1);
 
         // Get latest news message
         var latestNews = await _newMesaageService.GetFirstNewsMessageOrNullAsync(token);
         if (latestNews != null)
         {
-            this.LastNewsDate = latestNews.Date;
-            this.LastNewsTitle = latestNews.Title;
-            this.LastNewsText = latestNews.Text;
+            LastNewsDate = latestNews.Date;
+            LastNewsTitle = latestNews.Title;
+            LastNewsText = latestNews.Text;
         }
 
         // Get resources accessible to user
-        this.Resources = await _resourceService.GetResourcesAsync(this.User.IsPrivilegedUser(), token);
+        Resources = await _resourceService.GetResourcesAsync(User.IsPrivilegedUser(), token);
 
-        this.Reservations = await _reservationService.GetReservationInfosAsync(this.UserId, token);
+        Reservations = await _reservationService.GetReservationInfosAsync(UserId, token);
     }
 
     public async Task<IActionResult> OnGetDeleteAsync(int reservationId, CancellationToken token)
     {
         return (await _reservationService.DeleteReservationAsync(reservationId, UserId, token)) == CommandStatus.NotFound
-           ? this.NotFound()
-           : this.RedirectToPage("Index", null, "reservationdeleted");
+           ? NotFound()
+           : RedirectToPage("Index", null, "reservationdeleted");
     }
 }

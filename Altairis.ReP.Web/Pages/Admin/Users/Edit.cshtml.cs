@@ -11,7 +11,7 @@ public class EditModel : PageModel {
 
     public EditModel(UserManager<ApplicationUser> userManager, IOptions<AppSettings> optionsAccessor) {
         this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        this.options = optionsAccessor?.Value ?? throw new ArgumentNullException(nameof(optionsAccessor));
+        options = optionsAccessor?.Value ?? throw new ArgumentNullException(nameof(optionsAccessor));
     }
 
     [BindProperty]
@@ -49,55 +49,55 @@ public class EditModel : PageModel {
     };
 
     public async Task<IActionResult> OnGetAsync(int userId) {
-        var user = await this.userManager.FindByIdAsync(userId.ToString());
-        if (user == null) return this.NotFound();
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return NotFound();
 
-        this.Input = new InputModel {
+        Input = new InputModel {
             Email = user.Email,
             UserEnabled = user.Enabled,
             Language = user.Language,
             PhoneNumber = user.PhoneNumber,
             UserName = user.UserName,
-            IsAdministrator = await this.userManager.IsInRoleAsync(user, ApplicationRole.Administrator),
-            IsMaster = await this.userManager.IsInRoleAsync(user, ApplicationRole.Master),
+            IsAdministrator = await userManager.IsInRoleAsync(user, ApplicationRole.Administrator),
+            IsMaster = await userManager.IsInRoleAsync(user, ApplicationRole.Master),
             DisplayName = user.DisplayName,
             ShowInMemberDirectory = user.ShowInMemberDirectory
         };
 
-        return this.Page();
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(int userId) {
-        var user = await this.userManager.FindByIdAsync(userId.ToString());
-        if (user == null) return this.NotFound();
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return NotFound();
 
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
-        user.Email = this.Input.Email;
-        user.Enabled = this.Input.UserEnabled;
-        user.PhoneNumber = this.Input.PhoneNumber;
-        user.UserName = this.Input.UserName;
-        user.Language = this.Input.Language;
-        user.DisplayName = this.Input.DisplayName;
-        user.ShowInMemberDirectory = this.options.Features.UseMemberDirectory && this.Input.ShowInMemberDirectory;
+        user.Email = Input.Email;
+        user.Enabled = Input.UserEnabled;
+        user.PhoneNumber = Input.PhoneNumber;
+        user.UserName = Input.UserName;
+        user.Language = Input.Language;
+        user.DisplayName = Input.DisplayName;
+        user.ShowInMemberDirectory = options.Features.UseMemberDirectory && Input.ShowInMemberDirectory;
 
-        var result = await this.userManager.UpdateAsync(user);
-        if (!this.IsIdentitySuccess(result)) return this.Page();
+        var result = await userManager.UpdateAsync(user);
+        if (!this.IsIdentitySuccess(result)) return Page();
 
-        Task<IdentityResult> SetUserMembership(ApplicationUser user, string role, bool status) => status ? this.userManager.AddToRoleAsync(user, role) : this.userManager.RemoveFromRoleAsync(user, role);
+        Task<IdentityResult> SetUserMembership(ApplicationUser user, string role, bool status) => status ? userManager.AddToRoleAsync(user, role) : userManager.RemoveFromRoleAsync(user, role);
 
-        await SetUserMembership(user, ApplicationRole.Administrator, this.Input.IsAdministrator);
-        await SetUserMembership(user, ApplicationRole.Master, this.Input.IsMaster);
+        await SetUserMembership(user, ApplicationRole.Administrator, Input.IsAdministrator);
+        await SetUserMembership(user, ApplicationRole.Master, Input.IsMaster);
 
-        return this.RedirectToPage("Index", null, "saved");
+        return RedirectToPage("Index", null, "saved");
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(int userId) {
-        var user = await this.userManager.FindByIdAsync(userId.ToString());
-        if (user == null) return this.NotFound();
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return NotFound();
 
-        await this.userManager.DeleteAsync(user);
+        await userManager.DeleteAsync(user);
 
-        return this.RedirectToPage("Index", null, "deleted");
+        return RedirectToPage("Index", null, "deleted");
     }
 }

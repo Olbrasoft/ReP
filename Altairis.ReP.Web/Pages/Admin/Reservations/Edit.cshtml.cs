@@ -48,15 +48,15 @@ public class EditModel : PageModel
         var r = await _service.GetReservationForEditOrNullAsync(reservationId, token);
         if (r != null)
         {
-            this.ResourceId = r.ResourceId;
-            this.ResourceName = r.ResourceName;
-            this.UserId = r.UserId;
-            this.UserName = r.UserName;
+            ResourceId = r.ResourceId;
+            ResourceName = r.ResourceName;
+            UserId = r.UserId;
+            UserName = r.UserName;
 
-            if (r.UserSendNotifications && r.UserName != this.User.Identity.Name)
+            if (r.UserSendNotifications && r.UserName != User.Identity.Name)
             {
-                this.NotificationEmail = r.UserEmail;
-                this.NotificationCulture = new CultureInfo(r.UserLanguage);
+                NotificationEmail = r.UserEmail;
+                NotificationCulture = new CultureInfo(r.UserLanguage);
             }
         }
         return r;
@@ -64,74 +64,74 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(int reservationId, CancellationToken token)
     {
-        var r = await this.Init(reservationId, token);
-        if (r == null) return this.NotFound();
+        var r = await Init(reservationId, token);
+        if (r == null) return NotFound();
 
-        this.Input = new InputModel
+        Input = new InputModel
         {
             Comment = r.Comment,
             DateBegin = r.DateBegin,
             DateEnd = r.DateEnd,
             System = r.System
         };
-        return this.Page();
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(int reservationId, CancellationToken token)
     {
-        var r = await this.Init(reservationId, token);
-        if (r == null) return this.NotFound();
+        var r = await Init(reservationId, token);
+        if (r == null) return NotFound();
        
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
-        var result = await _service.SaveAsync(reservationId, r.ResourceId , this.Input.DateBegin, this.Input.DateEnd, this.Input.System, this.Input.Comment, token);
+        var result = await _service.SaveAsync(reservationId, r.ResourceId , Input.DateBegin, Input.DateEnd, Input.System, Input.Comment, token);
 
         foreach (var item in result.Conflicts)
         {
-            this.ModelState.AddModelError(string.Empty, string.Format(UI.My_Reservations_Err_Conflict, item.UserName, item.DateBegin));
+            ModelState.AddModelError(string.Empty, string.Format(UI.My_Reservations_Err_Conflict, item.UserName, item.DateBegin));
         }
 
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         // Send notification if time changed
-        if ((r.DateBegin != this.Input.DateBegin || r.DateEnd != this.Input.DateEnd) && !string.IsNullOrEmpty(this.NotificationEmail))
+        if ((r.DateBegin != Input.DateBegin || r.DateEnd != Input.DateEnd) && !string.IsNullOrEmpty(NotificationEmail))
         {
-            var msg = new TemplatedMailMessageDto("ReservationChanged", this.NotificationEmail);
+            var msg = new TemplatedMailMessageDto("ReservationChanged", NotificationEmail);
             await mailer.SendMessageAsync(msg, new
             {
-                resourceName = this.ResourceName,
-                userName = this.User.Identity.Name,
+                resourceName = ResourceName,
+                userName = User.Identity.Name,
                 oldDateBegin = r.DateBegin,
                 oldDateEnd = r.DateEnd,
-                dateBegin = this.Input.DateBegin,
-                dateEnd = this.Input.DateEnd
-            }, this.NotificationCulture, this.NotificationCulture);
+                dateBegin = Input.DateBegin,
+                dateEnd = Input.DateEnd
+            }, NotificationCulture, NotificationCulture);
         }
-        return this.RedirectToPage("Index", null, "saved");
+        return RedirectToPage("Index", null, "saved");
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(int reservationId, CancellationToken token)
     {
-        var r = await this.Init(reservationId, token);
-        if (r == null) return this.NotFound();
+        var r = await Init(reservationId, token);
+        if (r == null) return NotFound();
 
         // Send notification
-        if (!string.IsNullOrEmpty(this.NotificationEmail))
+        if (!string.IsNullOrEmpty(NotificationEmail))
         {
-            var msg = new TemplatedMailMessageDto("ReservationDeleted", this.NotificationEmail);
-            await this.mailer.SendMessageAsync(msg, new
+            var msg = new TemplatedMailMessageDto("ReservationDeleted", NotificationEmail);
+            await mailer.SendMessageAsync(msg, new
             {
-                resourceName = this.ResourceName,
-                userName = this.User.Identity.Name,
+                resourceName = ResourceName,
+                userName = User.Identity.Name,
                 oldDateBegin = r.DateBegin,
                 oldDateEnd = r.DateEnd,
-            }, this.NotificationCulture, this.NotificationCulture);
+            }, NotificationCulture, NotificationCulture);
         }
 
         // Delete reservation
-        if (await _service.DeleteReservationAsync(reservationId, token) == CommandStatus.NotFound) return this.NotFound();
+        if (await _service.DeleteReservationAsync(reservationId, token) == CommandStatus.NotFound) return NotFound();
 
-        return this.RedirectToPage("Index", null, "deleted");
+        return RedirectToPage("Index", null, "deleted");
     }
 
 }

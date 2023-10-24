@@ -11,5 +11,5 @@ public class IndexModel : PageModel
     public IEnumerable<NewsMessageInfoDto> NewsMessages { get; set; }
 
     public async Task OnGetAsync(CancellationToken token) 
-        => this.NewsMessages = await _service.GetNewsMessageInfos(token);
+        => NewsMessages = await _service.GetNewsMessageInfos(token);
 }

@@ -5,17 +5,17 @@ using Altairis.ValidationToolkit;
 namespace Altairis.ReP.Web.Pages.Admin;
 public class OpeningHoursModel : PageModel
 {
-    private readonly IOpeningHoursChangeService _service;
+    
 
-    private readonly IOpeningHoursService hoursProvider;
+    private readonly IOpeningHoursService _openingHoursService;
 
-    public OpeningHoursModel(IOpeningHoursChangeService service, IOpeningHoursService hoursProvider)
+    public OpeningHoursModel( IOpeningHoursService hoursProvider)
     {
-        _service = service ?? throw new ArgumentNullException(nameof(service));
-        this.hoursProvider = hoursProvider ?? throw new ArgumentNullException(nameof(hoursProvider));
+       
+        _openingHoursService = hoursProvider ?? throw new ArgumentNullException(nameof(hoursProvider));
     }
 
-    public IEnumerable<OpeningHoursInfo> StandardOpeningHours => this.hoursProvider.GetStandardOpeningHours();
+    public IEnumerable<OpeningHoursInfo> StandardOpeningHours => _openingHoursService.GetStandardOpeningHours();
 
     [BindProperty]
     public InputModel Input { get; set; } = new InputModel();
@@ -36,22 +36,22 @@ public class OpeningHoursModel : PageModel
 
     }
 
-    public async Task OnGetAsync(CancellationToken token) => this.OpeningHoursChanges = await _service.GetOpeningHoursChangesAsync(token);
+    public async Task OnGetAsync(CancellationToken token) => OpeningHoursChanges = await _openingHoursService.GetOpeningHoursChangesAsync(token);
 
     public async Task<IActionResult> OnPostAsync(CancellationToken token)
     {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
-        await _service.SaveOpeningHoursChangeAsync(this.Input.Date, this.Input.OpeningTime, this.Input.ClosingTime, token);
+        await _openingHoursService.SaveOpeningHoursChangeAsync(Input.Date, Input.OpeningTime, Input.ClosingTime, token);
 
-        return this.RedirectToPage(string.Empty, null, "created");
+        return RedirectToPage(string.Empty, null, "created");
     }
 
     public async Task<IActionResult> OnGetDeleteAsync(int ohchId, CancellationToken token)
     {
-        if (await _service.DeleteOpeningHoursChangeAsync(ohchId, token) == CommandStatus.NotFound) return this.NotFound();
+        if (await _openingHoursService.DeleteOpeningHoursChangeAsync(ohchId, token) == CommandStatus.NotFound) return NotFound();
 
-        return this.RedirectToPage(string.Empty, null, "deleted");
+        return RedirectToPage(string.Empty, null, "deleted");
     }
 
 }

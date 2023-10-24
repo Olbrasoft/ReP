@@ -18,7 +18,7 @@ public class ArchiveModel : PageModel
 
     public async Task OnGetAsync(CancellationToken token)
     {
-        var userId = int.Parse(this.userManager.GetUserId(this.User));
-        this.Reservations = await _service.GetUserReservationsAsync(userId, token);
+        var userId = int.Parse(userManager.GetUserId(User));
+        Reservations = await _service.GetUserReservationsAsync(userId, token);
     }
 }

@@ -36,7 +36,7 @@ public class CreateModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(CancellationToken token)
     {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         await _service.SaveAsync(Input.Name,
                                  Input.Description,
@@ -47,6 +47,6 @@ public class CreateModel : PageModel
                                  Input.BackgroundColor,
                                  token);
 
-        return this.RedirectToPage("Index", null, "created");
+        return RedirectToPage("Index", null, "created");
     }
 }

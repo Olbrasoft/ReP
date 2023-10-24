@@ -23,32 +23,32 @@ public class ForgotPasswordModel : PageModel {
     }
 
     public async Task<IActionResult> OnPostAsync(string locale) {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         // Try to find user by name
-        var user = await this.userManager.FindByNameAsync(this.Input.UserName).ConfigureAwait(false);
+        var user = await userManager.FindByNameAsync(Input.UserName).ConfigureAwait(false);
         if (user == null) {
-            this.ModelState.AddModelError(nameof(this.Input.UserName), UI.Login_ForgotPassword_UserNotFound);
-            return this.Page();
+            ModelState.AddModelError(nameof(Input.UserName), UI.Login_ForgotPassword_UserNotFound);
+            return Page();
         }
 
         // Get password reset token
-        var token = await this.userManager.GeneratePasswordResetTokenAsync(user);
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
 
         // Get password reset URL
-        var passwordResetUrl = this.Url.Page("/Login/ResetPassword",
+        var passwordResetUrl = Url.Page("/Login/ResetPassword",
             pageHandler: null,
             values: new { userId = user.Id, token = token },
-            protocol: this.Request.Scheme);
+            protocol: Request.Scheme);
 
         // Send password reset mail
         var msg = new TemplatedMailMessageDto("PasswordReset", user.Email);
-        await this.mailerService.SendMessageAsync(msg, new {
+        await mailerService.SendMessageAsync(msg, new {
             userName = user.UserName,
             url = passwordResetUrl
         }).ConfigureAwait(false);
 
-        return this.RedirectToPage("Index", null, "sent");
+        return RedirectToPage("Index", null, "sent");
     }
 
 }

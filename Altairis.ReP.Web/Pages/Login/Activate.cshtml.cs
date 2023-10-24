@@ -23,30 +23,30 @@ public class ActivateModel : PageModel {
 
     public async Task<IActionResult> OnGetAsync(int userId, string token) {
         // Get user
-        var user = await this.userManager.FindByIdAsync(userId.ToString());
-        if (user == null || user.EmailConfirmed) return this.RedirectToPage("Index", null, "afail");
-        this.NewUserName = user.UserName;
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null || user.EmailConfirmed) return RedirectToPage("Index", null, "afail");
+        NewUserName = user.UserName;
 
         // Try to confirm e-mail address
-        var result = await this.userManager.ConfirmEmailAsync(user, token);
-        if (!this.IsIdentitySuccess(result)) return this.RedirectToPage("Index", null, "afail");
-        return this.Page();
+        var result = await userManager.ConfirmEmailAsync(user, token);
+        if (!this.IsIdentitySuccess(result)) return RedirectToPage("Index", null, "afail");
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(int userId) {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         // Get user
-        var user = await this.userManager.FindByIdAsync(userId.ToString());
-        if (user == null) return this.NotFound();
-        this.NewUserName = user.UserName;
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return NotFound();
+        NewUserName = user.UserName;
 
 
         // Try to set password
-        var result = await this.userManager.AddPasswordAsync(user, this.Input.Password);
-        if (!this.IsIdentitySuccess(result)) return this.Page();
+        var result = await userManager.AddPasswordAsync(user, Input.Password);
+        if (!this.IsIdentitySuccess(result)) return Page();
 
-        return this.RedirectToPage("Index", null, "adone");
+        return RedirectToPage("Index", null, "adone");
     }
 
 }

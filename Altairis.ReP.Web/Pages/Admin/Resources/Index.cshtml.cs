@@ -11,5 +11,5 @@ public class IndexModel : PageModel
     public IEnumerable<ResourceInfoDto> Resources { get; set; }
 
     public async Task OnGetAsync(CancellationToken token)
-        => this.Resources = await _service.GetResourceInfosAsync(token);
+        => Resources = await _service.GetResourceInfosAsync(token);
 }

@@ -16,7 +16,7 @@ public class ReservationsModel : PageModel
     private readonly IDateProvider _dateProvider;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IOpeningHoursService _openingHourseService;
-    private readonly AttachmentProcessor attachmentProcessor;
+    private readonly AttachmentService attachmentProcessor;
     private readonly AppSettings _options;
 
     public ReservationsModel(
@@ -27,7 +27,7 @@ public class ReservationsModel : PageModel
         UserManager<ApplicationUser> userManager,
         IOpeningHoursService hoursProvider,
         IOptions<AppSettings> optionsAccessor,
-        AttachmentProcessor attachmentProcessor)
+        AttachmentService attachmentProcessor)
     {
         _resourceService = resourceService ?? throw new ArgumentNullException(nameof(resourceService));
         _reservationService = reservationService ?? throw new ArgumentNullException(nameof(reservationService));
@@ -158,7 +158,7 @@ public class ReservationsModel : PageModel
             // Check against opening times
             if (_options.Features.UseOpeningHours)
             {
-                var openTime = await _openingHourseService.GetOpeningHours(Input.DateBegin);
+                var openTime = await _openingHourseService.GetOpeningHoursAsync(Input.DateBegin);
                 if (Input.DateBegin < openTime.AbsoluteOpeningTime || Input.DateEnd > openTime.AbsoluteClosingTime)
                 {
                     ModelState.AddModelError(string.Empty, UI.My_Reservations_Err_OpeningHours);

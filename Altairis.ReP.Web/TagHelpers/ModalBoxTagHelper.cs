@@ -22,12 +22,12 @@ public class ModalBoxTagHelper : TagHelper {
         output.AddClass("modal", HtmlEncoder.Default);
         output.Content.AppendLine();
         output.Content.AppendHtmlLine("<article>");
-        output.Content.AppendHtmlLine($"<header><i class=\"fa {this.Icon}\"></i></header>");
-        var messageLines = this.Message.Split('\r', '\n', StringSplitOptions.RemoveEmptyEntries);
+        output.Content.AppendHtmlLine($"<header><i class=\"fa {Icon}\"></i></header>");
+        var messageLines = Message.Split('\r', '\n', StringSplitOptions.RemoveEmptyEntries);
         foreach (var line in messageLines) {
             output.Content.AppendHtmlLine($"<p>{line}</p>");
         }
-        output.Content.AppendHtmlLine($"<footer><a href=\"{this.TargetUrl}\" class=\"button\">{UI._OK}</a></footer>");
+        output.Content.AppendHtmlLine($"<footer><a href=\"{TargetUrl}\" class=\"button\">{UI._OK}</a></footer>");
         output.Content.AppendHtmlLine("</article>");
     }
 }

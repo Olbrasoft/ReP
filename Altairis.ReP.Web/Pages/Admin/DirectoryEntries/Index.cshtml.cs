@@ -11,5 +11,5 @@ public class IndexModel : PageModel {
     public IEnumerable<DirectoryEntry> DirectoryEntries { get; set; }
 
     public async Task OnGetAsync(CancellationToken token) 
-        => this.DirectoryEntries = await _service.GetDirectoryEntriesAsync(token);
+        => DirectoryEntries = await _service.GetDirectoryEntriesAsync(token);
 }

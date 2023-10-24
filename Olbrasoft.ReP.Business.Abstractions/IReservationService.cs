@@ -8,14 +8,12 @@ public interface IReservationService
 
     Task<IEnumerable<UserReservationDto>> GetUserReservationsAsync(int userId, CancellationToken token = default);
 
-
     Task<IEnumerable<ReservationWithDesignInfoDto>> GetBetweenDatesAsync(DateTime dateBegin, DateTime dateEnd, CancellationToken token = default);
 
     Task<IEnumerable<ReservationWithDesignInfoDto>> GetByResourceIdAsync(int resourceId, DateTime dateBegin, CancellationToken token = default);
 
     Task<CommandStatus> DeleteReservationAsync(int reservationId, int userId, CancellationToken token = default);
     Task<CommandStatus> DeleteReservationAsync(int reservationId, CancellationToken token = default);
-
 
     Task<SaveReservationCommandResult> SaveAsync(DateTime dateBegin,
                                   DateTime dateEnd,

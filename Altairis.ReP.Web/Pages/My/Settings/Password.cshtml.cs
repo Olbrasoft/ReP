@@ -23,10 +23,10 @@ public class PasswordModel : PageModel {
     }
 
     public async Task<IActionResult> OnPostAsync() {
-        if (!this.ModelState.IsValid) return this.Page();
-        var me = await this.userManager.GetUserAsync(this.User);
-        var result = await this.userManager.ChangePasswordAsync(me, this.Input.CurrentPassword, this.Input.NewPassword);
-        return this.IsIdentitySuccess(result) ? this.RedirectToPage("Index", null, "changepassword") : (IActionResult)this.Page();
+        if (!ModelState.IsValid) return Page();
+        var me = await userManager.GetUserAsync(User);
+        var result = await userManager.ChangePasswordAsync(me, Input.CurrentPassword, Input.NewPassword);
+        return this.IsIdentitySuccess(result) ? RedirectToPage("Index", null, "changepassword") : (IActionResult)Page();
     }
 
 }

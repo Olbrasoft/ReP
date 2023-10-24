@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Altairis.Services.DateProvider" Version="1.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
 	</ItemGroup>
 
@@ -21,7 +22,7 @@
 		<Using Include="Olbrasoft.Data.Cqrs" />
 		<Using Include="Altairis.ReP.Data.Dtos" />
 		<Using Include="Altairis.ReP.Data.Queries" />
-		<Using Include="Altairis.ReP.Data.Entities"/>
+		<Using Include="Altairis.ReP.Data.Entities" />
 		<Using Include="Altairis.ReP.Data.Queries.ResourceQueries" />
 		<Using Include="Altairis.ReP.Data.Queries.ReservationQueries" />
 		<Using Include="Olbrasoft.ReP.Business.Abstractions" />

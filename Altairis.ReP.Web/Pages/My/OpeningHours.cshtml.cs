@@ -2,12 +2,14 @@ using Altairis.ReP.Data;
 using Olbrasoft.ReP.Business;
 
 namespace Altairis.ReP.Web.Pages.My;
-public class OpeningHoursModel : PageModel {
+public class OpeningHoursPageModel : PageModel {
     private readonly IOpeningHoursService _service;
 
-    public OpeningHoursModel(IOpeningHoursService hoursProvider) {
+    public OpeningHoursPageModel(IOpeningHoursService hoursProvider) {
         _service = hoursProvider ?? throw new ArgumentNullException(nameof(hoursProvider));
     }
+
+
 
     public IEnumerable<OpeningHoursInfo> OpeningHours
     {
@@ -15,5 +17,10 @@ public class OpeningHoursModel : PageModel {
         {
             return _service.GetOpeningHours(0, 14);
         }
+    }
+
+    public async Task<string> GetString()
+    {
+        return await Task.FromResult(string.Empty);
     }
 }

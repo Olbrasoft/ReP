@@ -27,23 +27,23 @@ public class IndexModel : PageModel {
         public bool RememberMe { get; set; }
     }
 
-    public async Task<IActionResult> OnGet(CancellationToken token) => await  _service.IsThereAnyUserAsync(token) ? this.Page() : this.RedirectToPage("/FirstRun");
+    public async Task<IActionResult> OnGet(CancellationToken token) => await  _service.IsThereAnyUserAsync(token) ? Page() : RedirectToPage("/FirstRun");
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = "/") {
-        if (this.ModelState.IsValid) {
-            var result = await this.signInManager.PasswordSignInAsync(
-                this.Input.UserName,
-                this.Input.Password,
-                this.Input.RememberMe,
+        if (ModelState.IsValid) {
+            var result = await signInManager.PasswordSignInAsync(
+                Input.UserName,
+                Input.Password,
+                Input.RememberMe,
                 lockoutOnFailure: false);
 
             if (result.Succeeded) {
-                return this.LocalRedirect(returnUrl);
+                return LocalRedirect(returnUrl);
             } else {
-                this.ModelState.AddModelError(string.Empty, Resources.UI.Login_Index_LoginFailed);
+                ModelState.AddModelError(string.Empty, Resources.UI.Login_Index_LoginFailed);
             }
         }
-        return this.Page();
+        return Page();
     }
 
 }

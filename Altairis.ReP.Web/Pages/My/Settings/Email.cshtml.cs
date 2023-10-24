@@ -27,43 +27,43 @@ public class EmailModel : PageModel {
     }
 
     public async Task OnGetAsync() {
-        var me = await this.userManager.GetUserAsync(this.User);
-        this.Input.Email = me.Email;
+        var me = await userManager.GetUserAsync(User);
+        Input.Email = me.Email;
     }
 
     public async Task<IActionResult> OnPostAsync() {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         // Check if the address is really changed
-        var me = await this.userManager.GetUserAsync(this.User);
-        if (me.Email.Equals(this.Input.Email, StringComparison.OrdinalIgnoreCase)) return this.RedirectToPage("Index");
+        var me = await userManager.GetUserAsync(User);
+        if (me.Email.Equals(Input.Email, StringComparison.OrdinalIgnoreCase)) return RedirectToPage("Index");
 
         // Check password
-        var passwordCorrect = await this.userManager.CheckPasswordAsync(me, this.Input.CurrentPassword);
+        var passwordCorrect = await userManager.CheckPasswordAsync(me, Input.CurrentPassword);
         if (!passwordCorrect) {
-            this.ModelState.AddModelError(nameof(this.Input.CurrentPassword), UI.My_Settings_Email_InvalidPassword);
-            return this.Page();
+            ModelState.AddModelError(nameof(Input.CurrentPassword), UI.My_Settings_Email_InvalidPassword);
+            return Page();
         }
 
         // Get email change token
-        var token = await this.userManager.GenerateChangeEmailTokenAsync(me, this.Input.Email);
+        var token = await userManager.GenerateChangeEmailTokenAsync(me, Input.Email);
 
         // Get email change confirmation URL
-        var url = this.Url.Page("/My/Settings/EmailConfirm",
+        var url = Url.Page("/My/Settings/EmailConfirm",
             pageHandler: null,
             values: new {
-                newEmail = this.Input.Email,
+                newEmail = Input.Email,
                 token = token
             },
-            protocol: this.Request.Scheme);
+            protocol: Request.Scheme);
 
         // Send message
-        var msg = new TemplatedMailMessageDto("EmailConfirm", this.Input.Email);
-        await this.mailerService.SendMessageAsync(msg, new {
+        var msg = new TemplatedMailMessageDto("EmailConfirm", Input.Email);
+        await mailerService.SendMessageAsync(msg, new {
             userName = me.UserName,
             url = url
         });
 
-        return this.RedirectToPage("Index", null, "changeemail");
+        return RedirectToPage("Index", null, "changeemail");
     }
 }

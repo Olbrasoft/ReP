@@ -23,10 +23,10 @@ public class CreateModel : PageModel
     
     public async Task<IActionResult> OnPostAsync(CancellationToken token)
     {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
         // Create news
-        await _service.SaveAsync(this.dateProvider.Now, this.Input.Title, this.Input.Text, token);
+        await _service.SaveAsync(dateProvider.Now, Input.Title, Input.Text, token);
 
         // Send mailing
         var msg = new TemplatedMailMessageDto("News");
@@ -36,10 +36,10 @@ public class CreateModel : PageModel
             msg.To.Clear();
             msg.To.Add(new MailAddressDto(item.Email, item.Name));
             var culture = new CultureInfo(item.Language);
-            await this.mailer.SendMessageAsync(msg, new { title = this.Input.Title, text = this.Input.Text }, culture, culture);
+            await mailer.SendMessageAsync(msg, new { title = Input.Title, text = Input.Text }, culture, culture);
         }
 
-        return this.RedirectToPage("Index", null, "created");
+        return RedirectToPage("Index", null, "created");
     }
 
 }

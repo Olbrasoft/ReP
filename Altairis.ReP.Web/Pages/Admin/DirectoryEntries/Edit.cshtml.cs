@@ -28,32 +28,32 @@ public class EditModel : PageModel
     {
         var de = await _service.GetDirectoryEntryOrNullAsync(directoryEntryId, token);
         
-        if (de is null) return this.NotFound();
+        if (de is null) return NotFound();
 
-        this.Input = new InputModel
+        Input = new InputModel
         {
             DisplayName = de.DisplayName,
             Email = de.Email,
             PhoneNumber = de.PhoneNumber
         };
 
-        return this.Page();
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(int directoryEntryId, CancellationToken token)
     {
-        if (!this.ModelState.IsValid) return this.Page();
+        if (!ModelState.IsValid) return Page();
 
-        return await _service.SaveAsync(directoryEntryId, this.Input.DisplayName, this.Input.Email, this.Input.PhoneNumber, token) == CommandStatus.NotFound
-            ? this.NotFound()
-            : this.RedirectToPage("Index", null, "saved");
+        return await _service.SaveAsync(directoryEntryId, Input.DisplayName, Input.Email, Input.PhoneNumber, token) == CommandStatus.NotFound
+            ? NotFound()
+            : RedirectToPage("Index", null, "saved");
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(int directoryEntryId, CancellationToken token)
     {
         return await _service.DeleteAsync(directoryEntryId, token) == CommandStatus.NotFound
-            ? this.NotFound()
-            : this.RedirectToPage("Index", null, "deleted");
+            ? NotFound()
+            : RedirectToPage("Index", null, "deleted");
     }
 
 }

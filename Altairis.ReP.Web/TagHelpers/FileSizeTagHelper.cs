@@ -13,8 +13,8 @@ public class FileSizeTagHelper : TagHelper {
 
     public override void Process(TagHelperContext context, TagHelperOutput output) {
         output.TagName = "span";
-        output.Attributes.SetAttribute("title", $"{this.Value:N0} B");
-        output.Content.SetContent(FormatSize(this.Value));
+        output.Attributes.SetAttribute("title", $"{Value:N0} B");
+        output.Content.SetContent(FormatSize(Value));
         base.Process(context, output);
     }
 
