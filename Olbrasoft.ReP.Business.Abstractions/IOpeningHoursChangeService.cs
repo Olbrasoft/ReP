@@ -11,5 +11,6 @@ public interface IOpeningHoursChangeService
 
     Task<OpeningHoursChange?> GetOpeningHoursChangeOrNullByAsync(DateTime date, CancellationToken token = default);
 
+
     Task<IEnumerable<OpeningHoursChange>> GetOpeningHoursChangesBetween(DateTime dateFrom, DateTime dateTo, CancellationToken token = default);
 }
