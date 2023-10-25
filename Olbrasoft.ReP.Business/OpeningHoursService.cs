@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using Altairis.ReP.Data;
 using Altairis.ReP.Data.Commands.OpenningHoursChangeCommands;
 using Altairis.ReP.Data.Queries.OpeningHoursChangeQueries;
@@ -12,14 +13,14 @@ public class OpeningHoursService : BaseService, IOpeningHoursService
 
     private readonly IOptions<AppSettings> _optionsAccessor;
     private readonly IDateProvider _dateProvider;
-   
+
 
     public OpeningHoursService(IDispatcher dispatcher, IOptions<AppSettings> optionsAccessor, IDateProvider dateProvider) : base(dispatcher)
     {
 
         _optionsAccessor = optionsAccessor ?? throw new ArgumentNullException(nameof(optionsAccessor));
         _dateProvider = dateProvider ?? throw new ArgumentNullException(nameof(dateProvider));
-       
+
     }
 
     public async Task<OpeningHoursInfo> GetOpeningHoursAsync(int dayOffset) => await GetOpeningHoursAsync(_dateProvider.Today.AddDays(dayOffset));
@@ -31,7 +32,7 @@ public class OpeningHoursService : BaseService, IOpeningHoursService
     {
         date = date.Date;
 
-        var ohch = await new OpeningHoursChangeByDateQuery(Dispatcher) { Date = date }.ToResultAsync(token); 
+        var ohch = await new OpeningHoursChangeByDateQuery(Dispatcher) { Date = date }.ToResultAsync(token);
         return ohch == null
             ? GetStandardOpeningHours(date)
             : new OpeningHoursInfo
@@ -87,7 +88,7 @@ public class OpeningHoursService : BaseService, IOpeningHoursService
 
     private async Task<IEnumerable<OpeningHoursChange>> GetOpeningHoursChangesBetween(DateTime dateFrom, DateTime dateTo, CancellationToken token = default)
        => await new OpeningHoursChangesBetweenDatesQuery(Dispatcher) { DateFrom = dateFrom, DateTo = dateTo }.ToResultAsync(token);
-   
+
     public async Task<IEnumerable<OpeningHoursChange>> GetOpeningHoursChangesAsync(CancellationToken token = default)
      => await new OpeningHoursChangesQuery(Dispatcher).ToResultAsync(token);
 
@@ -97,8 +98,71 @@ public class OpeningHoursService : BaseService, IOpeningHoursService
     public Task<CommandStatus> DeleteOpeningHoursChangeAsync(int openingHoursChangeId, CancellationToken token = default)
         => new DeleteOpeningHoursChangeCommand(Dispatcher) { OpeningHoursChangeId = openingHoursChangeId }.ToResultAsync(token);
 
-    public Task<IEnumerable<OpeningHoursInfo>> GetOpeningHoursAsync(int dayOffsetFrom, int dayOffsetTo, CancellationToken token = default)
+
+
+    public async Task<IEnumerable<OpeningHoursInfo>> GetOpeningHoursAsync(int dayOffsetFrom, int dayOffsetTo, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        var dateFrom = _dateProvider.Today.AddDays(dayOffsetFrom);
+        var dateTo = _dateProvider.Today.AddDays(dayOffsetTo);
+
+        var date = dateFrom.Date;
+
+        var ohchs = await GetOpeningHoursChangesBetween(dateFrom, dateTo);
+
+        var OpeningHoursInfos = new List<OpeningHoursInfo>();
+
+        while (date <= dateTo.Date)
+        {
+            var ohch = ohchs.SingleOrDefault(x => x.Date == date);
+
+            if (ohch == null)
+            {
+                OpeningHoursInfos.Add(GetStandardOpeningHours(date));
+            }
+            else
+            {
+                OpeningHoursInfos.Add(new OpeningHoursInfo
+                {
+                    Date = date,
+                    IsException = true,
+                    OpeningTime = ohch.OpeningTime,
+                    ClosingTime = ohch.ClosingTime
+                });
+            }
+
+            date = date.AddDays(1);
+        }
+
+        return OpeningHoursInfos;
+    }
+
+
+    public async IAsyncEnumerable<OpeningHoursInfo> GetOpeningHoursAsync1(int dayOffsetFrom, int dayOffsetTo, [EnumeratorCancellation] CancellationToken token = default)
+    {
+        var dateFrom = _dateProvider.Today.AddDays(dayOffsetFrom);
+        var dateTo = _dateProvider.Today.AddDays(dayOffsetTo);
+
+        var date = dateFrom.Date;
+
+        var ohchs = await GetOpeningHoursChangesBetween(dateFrom, dateTo);
+
+        while (date <= dateTo.Date)
+        {
+            token.ThrowIfCancellationRequested();
+
+            var ohch = ohchs.SingleOrDefault(x => x.Date == date);
+            yield return ohch == null
+               ? GetStandardOpeningHours(date)
+               : new OpeningHoursInfo
+               {
+                   Date = date,
+                   IsException = true,
+                   OpeningTime = ohch.OpeningTime,
+                   ClosingTime = ohch.ClosingTime
+               };
+            date = date.AddDays(1);
+        }
+
     }
 }
+
